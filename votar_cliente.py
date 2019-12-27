@@ -7,10 +7,10 @@ PORT = 5000        # Port to listen on (non-privileged ports are > 1023)
 def largo(entrada):
 	if len(entrada)>=5:
 		largo=5+len(entrada)
-		salida='000'+str(largo)+'votos'+entrada
+		salida='000'+str(largo)+'votos1'+entrada
 	else:
 		largo=5+len(entrada)
-		salida='0000'+str(largo)+'votos'+entrada
+		salida='0000'+str(largo)+'votos1'+entrada
 	return salida
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -8,7 +8,7 @@ import subprocess
 #subprocess.call(crearvotac,shell=True)
 #crearvota = 'PGPASSWORD=informatica psql -U informatica -d postgres -c "CREATE TABLE Voto ( Fecha_v TIMESTAMP ,ID_votacion Integer,ID_opcion Integer);"'
 #subprocess.call(crearvota,shell=True)
-#crearop = 'PGPASSWORD=informatica psql -U informatica -d postgres -c "CREATE TABLE Opcion ( id_op Integer,ID_votacion Integer,opcion VARCHAR(20) );"'
+#crearop = 'PGPASSWORD=informatica psql -U informatica -d postgres -c "CREATE TABLE Opcion ( ID SERIAL PRIMARY KEY NOT NULL,ID_votacion Integer,opcion VARCHAR(20) );"'
 #subprocess.call(crearop,shell=True)
 #--------------------- INSERTAR INFORMACION-------------------------------
 a = ["'admin'","'informatica'"]

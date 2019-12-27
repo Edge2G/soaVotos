@@ -33,7 +33,7 @@ while (Bool):
 	if nombre_materia[5:11]=='nomma1':
 		msg= '00005query2'+separar(nombre_materia)
 		s.send(msg.encode())
-		print(v_vot) #v_vot[5:11]
+
 	if nombre_materia =='00010queryOKALL':
 		msg = '00005nomma1'
 		s.send(msg.encode())

@@ -21,7 +21,7 @@ s.connect((HOST,PORT))
 #trans = code_msg(args)
 usuario= sys.argv[1]
 contrasena=sys.argv[2]
-msj=usuario+'$'+contrasena
+msj=usuario+chr(01)+contrasena
 trans = code_msg(msj)
 s.send(trans.encode())
 resp = s.recv(5000).decode()

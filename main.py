@@ -83,8 +83,8 @@ def authenticate_vote_menu(stdscr):
 
     title_txt = "Ingrese Credenciales"
     user_txt = "Usuario:"
-    passwd_txt = "Contraseña:"
-    matricula_txt = "N° de Matricula:"
+    passwd_txt = "Contrasena:"
+    matricula_txt = "N de Matricula:"
     carrera_txt = "Carrera:"
 
     user_input = ""
@@ -232,7 +232,7 @@ def authenticate_admin_menu(stdscr):
 
     title_txt = "Ingrese Credenciales"
     user_txt = "Usuario:"
-    passwd_txt = "Contraseña:"
+    passwd_txt = "Contrasena:"
 
     user_input = ""
     passwd_input = ""
@@ -386,7 +386,7 @@ def create_vote_menu(stdscr):
     header1_txt = "Ingese un nombre para la votacion:"
     stdscr.addstr(4, max_x//8, header1_txt, curses.color_pair(2))
     
-    header2_txt = "Ingese cantidad de opciones (maximo 10), sin incluir blanco y nulo:"
+    header2_txt = "Ingese cantidad de opciones (maximo 10):"
     stdscr.addstr(7, max_x//8, header2_txt, curses.color_pair(2))
 
     curses.curs_set(1)
