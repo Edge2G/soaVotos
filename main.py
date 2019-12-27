@@ -1,6 +1,29 @@
 import curses
 from curses import textpad
 import subprocess
+
+def parse_options(msg):
+    options = []
+    op = ""
+    n_endl = 0
+
+    for x in range(0, len(msg)):
+        if msg[x] == '\n' and n_endl == 0:
+            n_endl = 1
+
+        if n_endl == 1:
+            if msg[x] == '\n':
+                if len(op) <= 1:
+                    continue
+                else:
+                    options.append(op)
+                    op = ""
+            else:
+                op = op + msg[x]
+
+    return options
+
+
 def reverse_dictionary(dic):
     key = list(dic.keys())
     val= list(dic.values())
@@ -320,6 +343,8 @@ def vote_menu(stdscr):
     cmd = 'python2 mostrar_votos_cliente.py'
     shell = str(subprocess.check_output(cmd, shell=True).decode())
     vote_name, vote_entries = decode_vote_results(shell)
+    vote_entries = []
+    vote_entries = parse_options(shell)
 
     n_op = len(vote_entries)
 
@@ -354,25 +379,25 @@ def vote_menu(stdscr):
         stdscr.addstr((max_y//(n_op+2)), (mid_x)-(len(title_txt)//2), title_txt)
         stdscr.addstr(max_y-2, (mid_x)-(len(aviso_txt)//2), aviso_txt, curses.color_pair(2))
         stdscr.addstr(max_y-2+1, (mid_x)-(len(aviso2_txt)//2), aviso2_txt, curses.color_pair(2))
+        stdscr.addstr(2, mid_x-(len(header_txt)//2), header_txt, curses.color_pair(2))
 
         if key == curses.KEY_UP and vote_selection > 1:
             vote_selection -= 1
         elif key == curses.KEY_DOWN and vote_selection < len(vote_entries):
             vote_selection += 1
         elif chr(key) == 'x' or chr(key) == 'X':
-            key_dic, val_dic=reverse_dictionary(vote_entries)
-            opcion_txt = "Opcion "+ key_dic[vote_selection-1]+ " seleccionada."
+            opcion_txt = "Opcion "+ vote_entries[vote_selection-1] +" seleccionada."
             stdscr.addstr((max_y//(n_op+2))+2, (mid_x)-(len(opcion_txt)//2), opcion_txt)
             key = stdscr.getch()
             if key == curses.KEY_ENTER or key in [10, 13]:
                 stdscr.clear()
-                final_option_txt = "Usted ha votado por la opcion " + str(vote_selection) + ": " + key_dic[vote_selection-1]
+                final_option_txt = "Usted ha votado por la opcion " + str(vote_selection) + ": " + vote_entries[vote_selection-1]
                 gracias_txt = "Gracias por votar. Presione enter para terminar."
                 stdscr.addstr(max_y//2, (max_x//2)-len(final_option_txt)//2, final_option_txt)
                 stdscr.addstr((max_y//2)+3, (max_x//2)-len(gracias_txt)//2, gracias_txt)
                 key = stdscr.getch()
                 if key == curses.KEY_ENTER or key in [10, 13]:
-                    cmd = 'python2 votar_cliente.py ' + key_dic[vote_selection-1]
+                    cmd = 'python2 votar_cliente.py ' + vote_entries[vote_selection-1]
                     shell = str(subprocess.check_output(cmd, shell=True).decode())
                     break
 
@@ -520,10 +545,13 @@ def show_results(stdscr):
     header_txt = "Resultados para la votacion: " + vote_name
     stdscr.addstr(2, mid_x-(len(header_txt)//2), header_txt, curses.color_pair(2))
 
-    i = 0
+    i = 1
+
+    stdscr.addstr(1, 1, str(len(vote_results)))
+
     for result in vote_results:
         stdscr.addstr(8+(i*2), mid_x-(len(result)+len(str(vote_results[result])))//2, result + ": " + str(vote_results[result]))
-
+    
         i = i + 1
 
     stdscr.refresh()

@@ -14,9 +14,6 @@ s.send(trans.encode())
 
 resp = s.recv(5000).decode()
 print resp
-#print "Recieved: ", resp
-#data = decode_vote_results(resp)
-#print(data)
 
 
 s.close () 

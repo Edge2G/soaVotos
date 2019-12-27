@@ -79,7 +79,7 @@ while True:
         j= "'"+nom_mat+"'"	
         insvot1 = 'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -c"INSERT INTO Votacion (nombre,Fecha_v) VALUES ('+j+',current_timestamp);"'
         subprocess.call(insvot1,shell=True)	
-        msg = '00005queryALL'
+        msg = '00008queryALL'
         s.send(msg.encode())
         print "\n"
 
@@ -115,7 +115,7 @@ while True:
         cmd1 = 'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -c "INSERT INTO Opcion ( ID_votacion,opcion ) VALUES ((SELECT ID From Votacion ORDER BY ID DESC LIMIT 1), '+i+' );"'
         query = subprocess.check_output(cmd1, shell=True)
 
-        msg = final_msg('nopcok', '5')
+        msg = '00012query5nopcok'
         print ("Sending: ", msg)
         s.send(msg.encode())
         print ("\n")
@@ -136,7 +136,7 @@ while True:
         s.send(msg.encode())
         print "\n"
 
-    if resp[5:11] == 'query7': # query inserta opciones
+    if resp[5:11] == 'query7': # query inserta voto
         data = resp[11:] #data con el nombre de la votacion
         i = "'"+data+"'"
         for x in range(0,len(i)):
