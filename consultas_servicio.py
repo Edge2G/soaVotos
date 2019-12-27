@@ -61,7 +61,7 @@ while True:
         print(q_usr,q_pass)	
         j= "'"+q_usr+"'"
         l="'"+q_pass+"'"
-        select7 = 'PGPASSWORD=postgres psql -U nico -d soa -t -c"SELECT nombre From Usuario WHERE Nombre='+j+' and Contra ='+l+'"'
+        select7 = 'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -t -c"SELECT nombre From Usuario WHERE Nombre='+j+' and Contra ='+l+'"'
         a = subprocess.check_output(select7,shell=True)
         print(a)
         if a[1:-2]==q_usr:        				
@@ -77,17 +77,17 @@ while True:
         nom_mat=resp[11:]
         print len(nom_mat), " ", nom_mat
         j= "'"+nom_mat+"'"	
-        insvot1 = 'PGPASSWORD=postgres psql -U nico -d soa -t -c"INSERT INTO Votacion (nombre,Fecha_v) VALUES ('+j+',current_timestamp);"'
+        insvot1 = 'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -c"INSERT INTO Votacion (nombre,Fecha_v) VALUES ('+j+',current_timestamp);"'
         subprocess.call(insvot1,shell=True)	
         msg = '00005queryALL'
         s.send(msg.encode())
         print "\n"
 
     if resp[5:11] == 'query3': # query mostrar resultados
-        cmd = 'PGPASSWORD=postgres psql -U nico -d soa -t -c"select opcion.opcion,count(*) from voto,opcion where opcion.id_op=voto.id_opcion and voto.id_votacion=(select max(id_votacion) from voto) group by opcion.opcion;"'
+        cmd = 'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -t -c"select opcion.opcion,count(*) from voto,opcion where opcion.id_op=voto.id_opcion and voto.id_votacion=(select max(id_votacion) from voto) group by opcion.opcion;"'
         query_results = str(subprocess.check_output(cmd, shell=True))
 
-        cmd = 'PGPASSWORD=postgres psql -U nico -d soa -t -c"select votacion.nombre from votacion where votacion.id=(select max(id) from votacion);"'
+        cmd = 'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -t -c"select votacion.nombre from votacion where votacion.id=(select max(id) from votacion);"'
         query_votename = str(subprocess.check_output(cmd, shell=True))
 
         query = "votename" + query_votename + query_results
@@ -99,7 +99,7 @@ while True:
         print "\n"
 
     if resp[5:11] == 'query4': # query ultima votacion
-        cmd =  'PGPASSWORD=postgres psql -U nico -d soa -t -c"SELECT ID From Votacion ORDER BY ID DESC LIMIT 1"'
+        cmd =  'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -t -c"SELECT ID From Votacion ORDER BY ID DESC LIMIT 1"'
         query = subprocess.check_output(cmd, shell=True)
 
         print (query)
@@ -112,7 +112,7 @@ while True:
     if resp[5:11] == 'query5': # query inserta opciones
         data = resp[11:] #data con el nombre de la votacion
         i = "'"+data+"'"
-        cmd1 = 'PGPASSWORD=postgres psql -U nico -d soa -t -c "INSERT INTO Opcion ( ID_votacion,opcion ) VALUES ((SELECT ID From Votacion ORDER BY ID DESC LIMIT 1), '+i+' );"'
+        cmd1 = 'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -c "INSERT INTO Opcion ( ID_votacion,opcion ) VALUES ((SELECT ID From Votacion ORDER BY ID DESC LIMIT 1), '+i+' );"'
         query = subprocess.check_output(cmd1, shell=True)
 
         msg = final_msg('nopcok', '5')
@@ -121,11 +121,11 @@ while True:
         print ("\n")
  
     if resp[5:11] == 'query6':  # query muestra opciones
-        cmd = 'PGPASSWORD=postgres psql -U nico -d soa -t -c "select opcion from opcion where ID_VOTACION = (select max(id) from votacion );"'
+        cmd = 'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -t -c "select opcion from opcion where ID_VOTACION = (select max(id) from votacion );"'
         query_results = str(subprocess.check_output(cmd, shell=True))
 
         # query para el nombre de la votacion
-        cmd = 'PGPASSWORD=postgres psql -U nico -d soa -t -c "select votacion.nombre from votacion where votacion.id=(select max(id) from votacion);"'
+        cmd = 'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -t -c "select votacion.nombre from votacion where votacion.id=(select max(id) from votacion);"'
         query_votename = str(subprocess.check_output(cmd, shell=True))
 
         query = "votename" + query_votename + query_results
@@ -139,7 +139,9 @@ while True:
     if resp[5:11] == 'query7': # query inserta opciones
         data = resp[11:] #data con el nombre de la votacion
         i = "'"+data+"'"
-        insvo = 'PGPASSWORD=postgres psql -U nico -d soa -t -c "INSERT INTO Voto (Fecha_v,ID_votacion,ID_opcion) VALUES (current_timestamp,(select max(id) from votacion),select id from from opcion where opcion ='+i+');"'
+        for x in range(0,len(i)):
+            print i[x]
+        insvo = 'PGPASSWORD=postgres psql --host=localhost --dbname=soa --username=postgres -c "INSERT INTO Voto (Fecha_v,ID_votacion,ID_opcion) VALUES (current_timestamp,(select max(id) from votacion), (select id_op from opcion where opcion ='+i+' and id_votacion = (select max(id) from votacion)));"'
         subprocess.call(insvo,shell=True)
 
         msg = final_msg('PASS', '7')

@@ -31,8 +31,6 @@ while (Bool):
 	#print(usuario)
 	if nombre_opcion== '00007opciono':
 		s.send('00007opciook'.encode())
-		s.close()
-		Bool=False
 	if nombre_opcion[5:11] =='opcio1':
 		msg = '00005query5'+separar(nombre_opcion)
 		s.send(msg.encode())
