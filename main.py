@@ -1,6 +1,11 @@
 import curses
 from curses import textpad
 import subprocess
+def reverse_dictionary(dic):
+    key = list(dic.keys())
+    val= list(dic.values())
+    return key, val
+
 
 def decode_auth_cliente(msg):
     auth = msg[12:-1]
@@ -307,8 +312,7 @@ def authenticate_admin_menu(stdscr):
     stdscr.getch()
     stdscr.refresh()
 
-
-def vote_menu(stdscr, vote_entries):
+def vote_menu(stdscr, vote_entries, vote_name_entries ):
     stdscr.clear()
     max_y, max_x = stdscr.getmaxyx()
     mid_x = max_x//2
@@ -316,21 +320,21 @@ def vote_menu(stdscr, vote_entries):
     title_txt = "Escoja una opcion"
     aviso_txt = "AVISO: Para navegar, utilize las flechas arriba/abajo."
     aviso2_txt = "Para seleccionar una opcion, presione 'x', y luego enter."
+    header_txt = "Materia de votacion: " + vote_name_entries
+    stdscr.addstr(2, mid_x-(len(header_txt)//2), header_txt, curses.color_pair(2))
     vote_selection = 1
     i = 1
     stdscr.addstr((max_y//(n_op+2)), (mid_x)-(len(title_txt)//2), title_txt)
     stdscr.addstr(max_y-2, (mid_x)-(len(aviso_txt)//2), aviso_txt, curses.color_pair(2))
     stdscr.addstr(max_y-2+1, (mid_x)-(len(aviso2_txt)//2), aviso2_txt, curses.color_pair(2))
+    j=0
+    for result in vote_entries:
+        stdscr.addstr(8+(j*2), mid_x-(len(result)+len(vote_entries[result]))//2, result + ": " + vote_entries[result])
 
-    for opcion in range(0,len(vote_entries)):
-        i = i + 1
-        y = (i*max_y//(n_op+2))
-        if i == 2:
-            stdscr.addstr(y, (max_x//4)-2, "X", curses.color_pair(2))
+        j = j + 1
 
-        stdscr.addstr(y, (max_x//4), "("+str(opcion+1)+") "+vote_entries[opcion])
-        #stdscr.addstr(8+(x*2), mid_x-len(vote_options[x])//2, "("+str(x+1)+") "+vote_options[x])
-
+    stdscr.refresh()
+    stdscr.getch()
     while True:
         key = stdscr.getch()
         stdscr.clear()
@@ -345,17 +349,20 @@ def vote_menu(stdscr, vote_entries):
         elif key == curses.KEY_DOWN and vote_selection < len(vote_entries):
             vote_selection += 1
         elif chr(key) == 'x' or chr(key) == 'X':
-            opcion_txt = "Opcion {} seleccionada.".format(vote_selection)
+            key_dic, val_dic=reverse_dictionary(vote_entries)
+            opcion_txt = "Opcion "+ key_dic[vote_selection-1]+ " seleccionada."
             stdscr.addstr((max_y//(n_op+2))+2, (mid_x)-(len(opcion_txt)//2), opcion_txt)
             key = stdscr.getch()
             if key == curses.KEY_ENTER or key in [10, 13]:
                 stdscr.clear()
-                final_option_txt = "Usted ha votado por la opcion " + str(vote_selection) + ": " + vote_entries[vote_selection-1]
+                final_option_txt = "Usted ha votado por la opcion " + str(vote_selection) + ": " + key_dic[vote_selection-1]
                 gracias_txt = "Gracias por votar. Presione enter para terminar."
                 stdscr.addstr(max_y//2, (max_x//2)-len(final_option_txt)//2, final_option_txt)
                 stdscr.addstr((max_y//2)+3, (max_x//2)-len(gracias_txt)//2, gracias_txt)
                 key = stdscr.getch()
                 if key == curses.KEY_ENTER or key in [10, 13]:
+                    cmd = 'python2 votar_cliente.py' + key_dic[vote_selection-1]
+                    shell = str(subprocess.check_output(cmd, shell=True).decode())
                     break
 
         for opcion in vote_entries:
@@ -373,7 +380,7 @@ def create_vote_menu(stdscr):
     mid_x = max_x//2
 
     vote_name_input = ""
-    vote_options = ['Blanco', 'Nulo']
+    vote_options = []
     num_op_input = ""
 
     header1_txt = "Ingese un nombre para la votacion:"
@@ -406,7 +413,9 @@ def create_vote_menu(stdscr):
                 stdscr.move(4, (max_x//8)+len(header1_txt)+2+len(vote_name_input)-1)
             elif len(vote_name_input) < 20:
                 vote_name_input = vote_name_input + chr(key)
-
+        
+    cmd = 'python2 crear_materia_cliente.py ' + vote_name_input
+    shell = str(subprocess.check_output(cmd, shell=True).decode())
 
     valid = False
     while(valid != True):
@@ -414,7 +423,7 @@ def create_vote_menu(stdscr):
         while True:
             key = stdscr.getch()
             if key == curses.KEY_ENTER or key in [10, 13]:
-                if int(num_op_input) > 6 or int(num_op_input) <= 0:
+                if int(num_op_input) > 8 or int(num_op_input) <= 0:
                     stdscr.addstr(7, (max_x//8)+len(header2_txt)+len(num_op_input)+10, "Ingrese un numero correcto")
                     num_op_input = ""
                     stdscr.addstr(7, (max_x//8)+len(header2_txt)+1, "     ")
@@ -476,8 +485,7 @@ def create_vote_menu(stdscr):
     stdscr.addstr(max_y-4, mid_x-len(final2_txt)//2, final2_txt, curses.color_pair(2))
 
     for x in range(0, len(vote_options)):
-        input_opc = str(x+1)+vote_options[x]
-        cmd = 'python2 crear_opciones_cliente.py ' + input_opc
+        cmd = 'python2 crear_opciones_cliente.py ' + vote_options[x]
         shell = str(subprocess.check_output(cmd, shell=True).decode())
         stdscr.addstr(8+(x*2), mid_x-len(vote_options[x])//2, "("+str(x+1)+") "+vote_options[x])
         
@@ -508,10 +516,16 @@ def show_results(stdscr):
     stdscr.refresh()
     stdscr.getch()
 
+def show_options():
+    cmd = 'python2 mostrar_votos_cliente.py'
+    shell = str(subprocess.check_output(cmd, shell=True).decode())
+    vote_name, vote_results = decode_vote_results(shell)
+    return vote_name,vote_results
 
 def main(stdscr):
     menu_entries = ['(1) Votar', '(2) Iniciar nueva votacion', '(3) Resultados', 'Salir']
-    vote_entries = [' Opcion1', ' Opcion2', ' Opcion3', ' Opcion4', ' Opcion5']
+    vote_name, vote_entries = show_options()
+    del vote_entries['']
     curses.curs_set(0)
     h, w = stdscr.getmaxyx()
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
@@ -539,7 +553,7 @@ def main(stdscr):
             # Se selecciona la opcion votar
             if menu_selection == 0:
                 authenticate_vote_menu(stdscr)
-                vote_menu(stdscr, vote_entries)
+                vote_menu(stdscr, vote_entries, vote_name )
             # Se selecciona la opcion iniciar nueva votacion
             if menu_selection == 1:
                 authenticate_admin_menu(stdscr)

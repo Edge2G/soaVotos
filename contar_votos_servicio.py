@@ -44,5 +44,19 @@ while True:
         s.send(msg.encode())
         print "\n"
 
+    if resp == '00009covotVIEW':
+        msg = '00006query6'
+        print "Sending: ", msg
+        s.send(msg.encode())
+        print "\n"
+
+    if resp[5:13] == 'queryOK6':
+        msg = final_msg(resp)
+        print "Sending: ", msg
+        s.send(msg.encode())
+        print "\n"
+
+
+
 
 s.close () 

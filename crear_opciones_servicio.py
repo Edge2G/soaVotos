@@ -14,7 +14,7 @@ bus_response = s.recv(5000).decode()
 print (bus_response)
 
 def separar(nombre):
-	return(nombre[10:])
+	return(nombre[11:])
 
 def v_opcion(nvotacion,query):
 	if len(nvotacion+query)>=10:
@@ -33,21 +33,13 @@ while (Bool):
 		s.send('00007opciook'.encode())
 		s.close()
 		Bool=False
-	else:
-		print(nombre_opcion)
-		#if nombre_opcion=='00009opcionulo':
-		#	s.send(nombre_opcion.encode())
-		n_mat=separar(nombre_opcion)
-		v_op=v_opcion(n_mat,'query5_')
-		s.send(v_op.encode())
-		print(v_op) #v_vot[5:11]
-		exito=''
-		exito = s.recv(5000).decode()
-		print(exito)
-		s.send('00007opciook'.encode())
-		#print(contrasena)
-		#conexion con la base de datos
-		# si se ecuentra en la base de datos
-		#respuesta='00023autenticarvotacionexito'
-		#respuesta='00022autenticarvotacionfallo'
-		#s.send(respuesta.encode()) 
+	if nombre_opcion[5:11] =='opcio1':
+		msg = '00005query5'+separar(nombre_opcion)
+		s.send(msg.encode())
+	if nombre_opcion[5:] == 'query0k5nopcok':
+		msg = '00005opcio1'
+		s.send(msg.encode())
+	if nombre_opcion[5:] == 'queryNk5nopcok':
+		msg = '00005opcioERROR'
+		s.send(msg.encode())
+		
